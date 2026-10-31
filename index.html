@@ -103,6 +103,43 @@ main{max-width:1240px;margin:0 auto}.top{display:flex;justify-content:space-betw
   for(let i=0;i<5;i++){let yy=.24+i*.045,xx=-.10+(i%3)*.10;ctx.beginPath();ctx.moveTo(xx,yy);ctx.lineTo(xx+.12+(i%2)*.05,yy);ctx.stroke()}
   ctx.restore();
  }
+ function cycleRandom(cycleNo,salt){const x=Math.sin(cycleNo*127.1+salt*311.7)*43758.5453;return x-Math.floor(x)}
+ function drawShark(dayAge,waterY,cycleNo){
+  const start=17+cycleRandom(cycleNo,1)*42,duration=19+cycleRandom(cycleNo,2)*12;if(dayAge<start||dayAge>start+duration)return;
+  const p=(dayAge-start)/duration,nearBoat=cycleRandom(cycleNo,3)>.48;
+  const x=nearBoat?W*(.5+Math.sin(p*Math.PI*2)*.12):W*(-.12+1.24*p),y=waterY+H*(.055+Math.sin(p*8)*.004),size=H*.052;
+  ctx.save();ctx.translate(x,y);ctx.fillStyle='#03080a';ctx.beginPath();ctx.moveTo(-size*.58,size*.18);ctx.quadraticCurveTo(-size*.25,-size*.48,size*.08,-size*.64);ctx.quadraticCurveTo(size*.10,-size*.18,size*.52,size*.16);ctx.quadraticCurveTo(0,size*.04,-size*.58,size*.18);ctx.fill();ctx.restore()
+ }
+ function drawBeachVisitor(dayAge,shelfTop,shoreShift,cycleNo){
+  const start=8+cycleRandom(cycleNo,5)*47,duration=22+cycleRandom(cycleNo,6)*17;if(dayAge<start||dayAge>start+duration)return;
+  const p=(dayAge-start)/duration,x=W*(.12+cycleRandom(cycleNo,7)*.70),y=H*(.805+shoreShift*.65),scale=Math.min(W*.055,H*.095),type=cycleRandom(cycleNo,8);
+  ctx.save();ctx.translate(x+(type>.52?(p-.5)*W*.12:0),y);ctx.fillStyle='#030608';ctx.strokeStyle='#030608';
+  if(type<.52){ // someone stretched out in the sun
+   ctx.beginPath();ctx.ellipse(0,0,scale*.72,scale*.18,-.04,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(-scale*.78,-scale*.12,scale*.19,0,Math.PI*2);ctx.fill();
+   ctx.lineWidth=scale*.12;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-scale*.3,-scale*.02);ctx.lineTo(-scale*.52,-scale*.38);ctx.moveTo(scale*.38,0);ctx.lineTo(scale*.70,-scale*.25);ctx.moveTo(scale*.30,scale*.05);ctx.lineTo(scale*.62,scale*.32);ctx.moveTo(-scale*.35,scale*.06);ctx.lineTo(-scale*.62,scale*.30);ctx.stroke()
+  }else{ // a cyclist crossing the strand
+   const r=scale*.48;ctx.lineWidth=scale*.07;ctx.strokeStyle='#030608';ctx.beginPath();ctx.arc(-scale*.6,0,r,0,Math.PI*2);ctx.arc(scale*.62,0,r,0,Math.PI*2);ctx.stroke();ctx.lineWidth=scale*.09;ctx.beginPath();ctx.moveTo(-scale*.6,0);ctx.lineTo(-scale*.1,-scale*.02);ctx.lineTo(scale*.12,-scale*.43);ctx.lineTo(scale*.62,0);ctx.moveTo(-scale*.1,-scale*.02);ctx.lineTo(-scale*.36,-scale*.42);ctx.lineTo(-scale*.52,-scale*.42);ctx.moveTo(scale*.12,-scale*.43);ctx.lineTo(scale*.34,-scale*.48);ctx.stroke();ctx.fillStyle='#030608';ctx.beginPath();ctx.arc(scale*.02,-scale*.83,scale*.16,0,Math.PI*2);ctx.fill();ctx.lineWidth=scale*.14;ctx.beginPath();ctx.moveTo(scale*.02,-scale*.66);ctx.lineTo(-scale*.10,-scale*.34);ctx.lineTo(scale*.20,-scale*.20);ctx.moveTo(0,-scale*.55);ctx.lineTo(scale*.27,-scale*.36);ctx.stroke()
+  }ctx.restore()
+ }
+ function drawHedgehog(x,y,size){
+  ctx.save();ctx.translate(x,y);ctx.fillStyle='#030608';ctx.beginPath();ctx.moveTo(-size*.68,size*.16);ctx.quadraticCurveTo(-size*.72,-size*.32,-size*.30,-size*.55);ctx.lineTo(-size*.43,-size*.78);ctx.lineTo(-size*.10,-size*.61);ctx.lineTo(size*.08,-size*.88);ctx.lineTo(size*.27,-size*.57);ctx.lineTo(size*.52,-size*.67);ctx.lineTo(size*.47,-size*.38);ctx.quadraticCurveTo(size*.78,-size*.24,size*.67,size*.12);ctx.quadraticCurveTo(size*.13,size*.42,-size*.68,size*.16);ctx.fill();ctx.beginPath();ctx.ellipse(size*.68,-size*.08,size*.19,size*.12,0,0,Math.PI*2);ctx.fill();ctx.fillRect(-size*.38,size*.15,size*.13,size*.22);ctx.fillRect(size*.35,size*.13,size*.13,size*.24);ctx.fillStyle='#f1e7ca';ctx.beginPath();ctx.arc(size*.73,-size*.13,size*.035,0,Math.PI*2);ctx.fill();ctx.restore()
+ }
+ function drawCatAndMouse(x,y,size,direction){
+  ctx.save();ctx.translate(x,y);ctx.scale(direction,1);ctx.fillStyle='#030608';
+  // low, stalking cat with a lifted tail
+  ctx.beginPath();ctx.ellipse(0,0,size*.43,size*.19,-.04,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.moveTo(size*.20,-size*.08);ctx.lineTo(size*.35,-size*.43);ctx.lineTo(size*.43,-size*.20);ctx.lineTo(size*.57,-size*.32);ctx.lineTo(size*.62,-size*.11);ctx.lineTo(size*.50,size*.02);ctx.closePath();ctx.fill();ctx.beginPath();ctx.moveTo(-size*.35,-size*.04);ctx.quadraticCurveTo(-size*.72,-size*.35,-size*.67,-size*.62);ctx.strokeStyle='#030608';ctx.lineWidth=size*.10;ctx.lineCap='round';ctx.stroke();ctx.fillRect(-size*.28,size*.08,size*.09,size*.30);ctx.fillRect(size*.23,size*.08,size*.09,size*.30);
+  // tiny mouse just ahead of the cat
+  ctx.beginPath();ctx.ellipse(size*.97,size*.12,size*.19,size*.11,0,0,Math.PI*2);ctx.fill();ctx.arc(size*.80,size*.02,size*.11,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(size*.77,-size*.10,size*.07,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.moveTo(size*1.13,size*.12);ctx.quadraticCurveTo(size*1.43,size*.22,size*1.32,size*.40);ctx.strokeStyle='#030608';ctx.lineWidth=size*.035;ctx.stroke();ctx.restore()
+ }
+ function drawNightLife(dayAge,shelfTop,shoreShift,cycleNo){
+  const nightAge=dayAge-90;if(nightAge<0||nightAge>90)return;
+  // fireflies blink and drift through the reeds on some nights
+  const flyCount=5+Math.floor(cycleRandom(cycleNo,10)*6);
+  for(let i=0;i<flyCount;i++){const phase=nightAge*.22+i*2.17+cycleRandom(cycleNo,11+i)*6.28,blink=.25+.75*Math.max(0,Math.sin(phase*1.6));if(blink<.36)continue;const x=((cycleRandom(cycleNo,30+i)+Math.sin(phase)*.025+1)%1)*W,y=H*(.72+cycleRandom(cycleNo,50+i)*.19)+Math.sin(phase*1.3)*H*.012,r=2.2+cycleRandom(cycleNo,70+i)*1.8,g=ctx.createRadialGradient(x,y,0,x,y,r*7);g.addColorStop(0,`rgba(202,255,139,${.72*blink})`);g.addColorStop(.25,`rgba(169,242,117,${.28*blink})`);g.addColorStop(1,'rgba(169,242,117,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r*7,0,Math.PI*2);ctx.fill();ctx.fillStyle=`rgba(220,255,167,${.8*blink})`;ctx.beginPath();ctx.arc(x,y,r*.42,0,Math.PI*2);ctx.fill()}
+  const visitor=cycleRandom(cycleNo,90);
+  if(visitor<.57){const start=8+cycleRandom(cycleNo,91)*42,duration=22;if(nightAge>=start&&nightAge<=start+duration){const p=(nightAge-start)/duration,x=W*(.15+.68*p),y=H*(.82+shoreShift*.55);drawHedgehog(x,y,Math.min(W*.055,H*.09))}}
+  else if(visitor<.9){const start=32+cycleRandom(cycleNo,92)*30,duration=23;if(nightAge>=start&&nightAge<=start+duration){const p=(nightAge-start)/duration,x=W*(-.12+1.05*p),y=H*(.83+shoreShift*.55);drawCatAndMouse(x,y,Math.min(W*.052,H*.085),1)}}
+ }
  function drawClouds(wind,daylight){
   const strength=clamp((wind-.48)/.52,0,1);if(strength<=.01)return;
   const count=Math.min(cloudGroups.length,Math.ceil(1+strength*5));
@@ -118,7 +155,9 @@ main{max-width:1240px;margin:0 auto}.top{display:flex;justify-content:space-betw
   }
  }
  function draw(){
-  let tide=val('tide'),moon=val('moon'),warm=val('warmth'),wind=val('wind');
+  const tideSetting=val('tide'),tideWave=Math.sin(time*Math.PI*2/90)*.24;
+  let tide=clamp(tideSetting+tideWave,0,1),moon=val('moon'),warm=val('warmth'),wind=val('wind');
+  outputs.tide.value=Math.round(tide*100)+'% · '+(Math.cos(time*Math.PI*2/90)>=0?'stijgend':'dalend');
   const waterY=H*(.64-tide*.15), horizon=H*.54;
   const cycle=(time/180)%1, celestial=cycle<.5?cycle*2:(cycle-.5)*2, sunUp=cycle<.5;
   const daylight=sunUp?Math.sin(Math.PI*celestial):0, moonlit=sunUp?0:Math.sin(Math.PI*celestial);
@@ -139,11 +178,15 @@ main{max-width:1240px;margin:0 auto}.top{display:flex;justify-content:space-betw
   // moving water plane to tide line
   ctx.beginPath();ctx.moveTo(0,waterY);for(let x=0;x<=W;x+=8){let yy=waterY+Math.sin(x*.014+time*(.55+wind*2))*H*(.004+wind*.012)+Math.sin(x*.034-time*.42)*H*.002;ctx.lineTo(x,yy)}ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.closePath();let water=ctx.createLinearGradient(0,waterY,0,H);water.addColorStop(0,mixHex('#0b1c20','#81a59a',daylight));water.addColorStop(.23,mixHex('#061219','#3f7470',daylight));water.addColorStop(1,mixHex('#02070d','#173b3c',daylight));ctx.fillStyle=water;ctx.fill();
   drawDistantShip(cycle);
-  drawFishingBoat(time%180);
+  const dayAge=time%180,cycleNo=Math.floor(time/180);
+  if(sunUp)drawShark(dayAge,waterY,cycleNo);
+  drawFishingBoat(dayAge);
   // foam ribbons
   for(let j=0;j<5;j++){ctx.beginPath();for(let x=0;x<=W;x+=10){let yy=waterY+H*(.018+j*.025)+Math.sin(x*.012+time*(.7+wind)+j*1.7)*H*(.005+wind*.012)+Math.sin(x*.027-time*.6+j)*H*.004;if(x===0)ctx.moveTo(x,yy);else ctx.lineTo(x,yy)}ctx.strokeStyle=`rgba(207,222,201,${(.018+j*.008+wind*.025)*(.12+daylight*.88)})`;ctx.lineWidth=1+j*.25;ctx.stroke()}
   // sandy shelf and tide pools
-  const shelfTop=Math.max(waterY,H*.68);ctx.beginPath();ctx.moveTo(0,shelfTop);ctx.bezierCurveTo(W*.22,shelfTop-H*.045,W*.31,H*.77,W*.49,H*.79);ctx.bezierCurveTo(W*.7,H*.84,W*.78,H*.72,W,H*.75);ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.closePath();let sand=ctx.createLinearGradient(0,shelfTop,0,H);sand.addColorStop(0,mixHex('#49463d','#b39c73',daylight));sand.addColorStop(.22,mixHex('#2e3f3a','#718271',daylight));sand.addColorStop(1,mixHex('#101e21','#314a42',daylight));ctx.fillStyle=sand;ctx.fill();
+  const shoreShift=(.5-tideSetting)*.10-tideWave*.12,shelfTop=Math.max(waterY+H*.035,H*(.68+shoreShift));ctx.beginPath();ctx.moveTo(0,shelfTop);ctx.bezierCurveTo(W*.22,shelfTop-H*.045,W*.31,H*(.77+shoreShift),W*.49,H*(.79+shoreShift));ctx.bezierCurveTo(W*.7,H*(.84+shoreShift),W*.78,H*(.72+shoreShift),W,H*(.75+shoreShift));ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.closePath();let sand=ctx.createLinearGradient(0,shelfTop,0,H);sand.addColorStop(0,mixHex('#49463d','#b39c73',daylight));sand.addColorStop(.22,mixHex('#2e3f3a','#718271',daylight));sand.addColorStop(1,mixHex('#101e21','#314a42',daylight));ctx.fillStyle=sand;ctx.fill();
+  // occasional silhouette on the daytime beach
+  if(sunUp)drawBeachVisitor(dayAge,shelfTop,shoreShift,cycleNo);
   // tide pool rings
   for(let i=0;i<4;i++){let x=W*(.16+i*.21),y=H*(.81+(i%2)*.075),rx=W*(.052+i*.004),ry=H*.023;ctx.fillStyle=`rgba(26,83,83,${.36+tide*.15})`;ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='rgba(172,198,171,.16)';ctx.lineWidth=2;ctx.stroke()}
   // rocks
@@ -153,6 +196,7 @@ main{max-width:1240px;margin:0 auto}.top{display:flex;justify-content:space-betw
   // glowing tiny creatures
   let count=Math.round(critters.length*(.3+warm*.4+tide*.24));
   for(let i=0;i<count;i++){let c=critters[i], x=((c.x+Math.sin(time*c.speed+c.phase)*(.008+wind*.025)+1)%1)*W, y=clamp(c.y+Math.sin(time*.45+c.phase)*.018-tide*.08,.58,.97)*H;let pulse=.45+.55*Math.sin(time*1.6+c.phase);let light=(.12+moon*.2+(.55-Math.abs(warm-.57))*.22)*pulse;let rad=c.r*(.8+warm*.55);let hue=c.kind===0?'129,231,196':c.kind===1?'147,204,235':c.kind===2?'235,207,145':'177,225,169';ctx.fillStyle=`rgba(${hue},${light*.22})`;ctx.beginPath();ctx.arc(x,y,rad*5,0,Math.PI*2);ctx.fill();ctx.fillStyle=`rgba(${hue},${light+.14})`;ctx.beginPath();ctx.arc(x,y,rad*(c.kind===1?1.25:1),0,Math.PI*2);ctx.fill();if(c.kind===1){ctx.beginPath();ctx.moveTo(x-rad,y);ctx.quadraticCurveTo(x,y+rad*3,x+rad,y);ctx.strokeStyle=`rgba(${hue},${light*.55})`;ctx.stroke()}}
+  if(!sunUp)drawNightLife(dayAge,shelfTop,shoreShift,cycleNo);
   // little beach flecks
   for(let i=0;i<90;i++){let x=((i*137.5)%W),y=H*(.78+((i*71)%190)/1000);if(y>waterY+H*.045){ctx.fillStyle=`rgba(220,202,161,${.06+((i*13)%8)*.01})`;ctx.fillRect(x,y,1.4,1.4)}}
  }
