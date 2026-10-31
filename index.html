@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#081522">
+<title>Getijdenkamer — een kleine levende kust</title>
+<style>
+:root{color-scheme:dark;--ink:#081522;--panel:#101f2b;--line:#28404c;--foam:#d8e5dc;--muted:#91a7aa;--mint:#8cdbbf;--gold:#f2d49a}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -20%,#274353 0,#101e2b 45%,#08121d 100%);color:var(--foam);font:15px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh;padding:clamp(14px,3vw,38px)}
+main{max-width:1240px;margin:0 auto}.top{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:18px}.eyebrow{color:var(--mint);font-size:.72rem;letter-spacing:.2em;text-transform:uppercase}.title{margin:.15em 0 0;font:clamp(2rem,4vw,3.35rem)/1.02 Georgia,serif;letter-spacing:-.045em}.intro{max-width:390px;color:#b5c8c5;margin:0 2px 4px;font:italic 1.02rem/1.45 Georgia,serif}.scene-wrap{position:relative;overflow:hidden;border:1px solid #49616a;border-radius:20px;background:#0c1924;box-shadow:0 25px 85px #020a11aa}.scene-wrap:after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;box-shadow:inset 0 0 90px #06121e99}.scene{display:block;width:100%;aspect-ratio:16/9;min-height:280px}.scene-caption{position:absolute;z-index:1;left:20px;bottom:15px;color:#d6e0d8b8;font:italic .9rem Georgia,serif;text-shadow:0 1px 8px #06121e}.under{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:14px;margin-top:14px}.observation,.controls{background:linear-gradient(145deg,#122430,#0e1b26);border:1px solid #273e49;border-radius:16px}.observation{padding:18px 20px;min-height:122px;display:flex;flex-direction:column;justify-content:space-between}.obs-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.obs-label{font-size:.68rem;letter-spacing:.17em;text-transform:uppercase;color:#91b9ae}.live{font-size:.7rem;color:#9dcfb7;display:flex;align-items:center;gap:7px}.live:before{content:"";width:7px;height:7px;border-radius:50%;background:#80dfb9;box-shadow:0 0 11px #80dfb9}.event{margin:12px 0 0;font:clamp(1.05rem,2vw,1.45rem)/1.3 Georgia,serif;color:#e6e6d7;transition:opacity .4s}.event.fade{opacity:.12}.hint{color:#91a7aa;font-size:.78rem;margin-top:8px}.controls{padding:16px 18px}.control-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.control-head strong{font:1.15rem Georgia,serif}.small-btn{border:1px solid #3b5661;background:#172b37;color:#d9e6dc;border-radius:8px;padding:6px 10px;font-size:.74rem;cursor:pointer}.small-btn:hover{background:#213b47;border-color:#72938d}.range{margin:12px 0}.range label{display:flex;justify-content:space-between;align-items:baseline;color:#bed0c9;font-size:.79rem;margin-bottom:4px}.range output{color:var(--mint);font-variant-numeric:tabular-nums}.range input{width:100%;accent-color:#82cdb3;height:17px;cursor:pointer}.range-note{display:flex;justify-content:space-between;color:#738b91;font-size:.66rem;margin-top:-2px}.footer{display:flex;justify-content:space-between;gap:12px;color:#728991;font-size:.69rem;margin:12px 4px 0}.footer span:last-child{text-align:right}
+@media(max-width:760px){.top{display:block}.intro{margin-top:12px;max-width:600px}.under{grid-template-columns:1fr}.controls{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}.control-head{grid-column:1/-1}.scene{min-height:260px}.footer{font-size:.64rem}}
+@media(max-width:440px){body{padding:12px}.scene-wrap{border-radius:14px}.scene{aspect-ratio:4/3;min-height:300px}.controls{grid-template-columns:1fr}.control-head{grid-column:auto}.scene-caption{font-size:.75rem;left:12px;bottom:10px}}
+</style>
+</head>
+<body>
+<main>
+  <header class="top"><div><div class="eyebrow">Een plek die blijft veranderen</div><h1 class="title">Getijdenkamer</h1></div><p class="intro">Kijk wat er gebeurt wanneer maan, wind en warmte langzaam aan een kust trekken.</p></header>
+  <section class="scene-wrap" aria-label="Geanimeerd nachtelijk getijdenlandschap"><canvas class="scene" id="scene" aria-label="Een kleine, bewegende kust met maanlicht, water en lichtgevende wezentjes"></canvas><div class="scene-caption">nacht valt niet overal tegelijk</div></section>
+  <section class="under">
+    <article class="observation" aria-live="polite"><div class="obs-head"><span class="obs-label">Wat er nu gebeurt</span><span class="live" id="state">de kust ademt</span></div><p class="event" id="event">Een dunne golf laat licht achter in de poelen.</p><div class="hint" id="hint">Verander iets kleins. De kust antwoordt op haar eigen tempo.</div></article>
+    <aside class="controls"><div class="control-head"><strong>De omstandigheden</strong><button class="small-btn" id="pause" type="button">Pauzeer</button></div>
+      <div class="range"><label for="tide"><span>Getij</span><output id="tideOut">62%</output></label><input id="tide" type="range" min="0" max="100" value="62"><div class="range-note"><span>eb</span><span>vloed</span></div></div>
+      <div class="range"><label for="moon"><span>Maanlicht</span><output id="moonOut">72%</output></label><input id="moon" type="range" min="0" max="100" value="72"><div class="range-note"><span>sluiermaan</span><span>volle maan</span></div></div>
+      <div class="range"><label for="warmth"><span>Warmte</span><output id="warmthOut">44%</output></label><input id="warmth" type="range" min="0" max="100" value="44"><div class="range-note"><span>koud</span><span>zomers</span></div></div>
+      <div class="range"><label for="wind"><span>Wind</span><output id="windOut">28%</output></label><input id="wind" type="range" min="0" max="100" value="28"><div class="range-note"><span>stil</span><span>ruw</span></div></div>
+    </aside>
+  </section>
+  <div class="footer"><span>Geen doel. Geen score. Alleen een kust die haar evenwicht zoekt.</span><span id="clock">moment 01</span></div>
+</main>
+<script>
+(()=>{
+ const canvas=document.getElementById('scene'),ctx=canvas.getContext('2d');
+ const controls={tide:document.getElementById('tide'),moon:document.getElementById('moon'),warmth:document.getElementById('warmth'),wind:document.getElementById('wind')};
+ const outputs={tide:document.getElementById('tideOut'),moon:document.getElementById('moonOut'),warmth:document.getElementById('warmthOut'),wind:document.getElementById('windOut')};
+ const eventEl=document.getElementById('event'),hintEl=document.getElementById('hint'),stateEl=document.getElementById('state'),pauseBtn=document.getElementById('pause'),clockEl=document.getElementById('clock');
+ let W=1200,H=675,dpr=1,time=0,last=0,paused=false,lastEvent=0,eventIndex=0,seasonMood=0;
+ const rand=(a,b)=>a+Math.random()*(b-a), clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+ const stars=Array.from({length:145},()=>({x:Math.random(),y:Math.random()*.56,r:rand(.45,1.8),p:rand(0,6.28)}));
+ const grass=Array.from({length:76},(_,i)=>({x:i/75*1.08-.04,h:rand(.035,.12),phase:rand(0,6.28),lean:rand(-.5,.5),green:rand(0,1)}));
+ const critters=Array.from({length:46},(_,i)=>({x:rand(.025,.98),y:rand(.59,.94),r:rand(1.5,5),phase:rand(0,6.28),speed:rand(.15,.55),kind:i%4}));
+ const ridges=Array.from({length:8},(_,i)=>({x:.06+i*.128,y:rand(.79,.97),rx:rand(.07,.15),ry:rand(.025,.09),tone:rand(0,1)}));
+ function resize(){let box=canvas.getBoundingClientRect();dpr=Math.min(2,window.devicePixelRatio||1);canvas.width=Math.round(box.width*dpr);canvas.height=Math.round(box.height*dpr);W=box.width;H=box.height;ctx.setTransform(dpr,0,0,dpr,0,0)}
+ function val(k){return +controls[k].value/100}
+ function draw(){
+  let tide=val('tide'),moon=val('moon'),warm=val('warmth'),wind=val('wind');
+  const waterY=H*(.64-tide*.15), horizon=H*.54;
+  let sky=ctx.createLinearGradient(0,0,0,H);sky.addColorStop(0,'#101b31');sky.addColorStop(.55,'#31465a');sky.addColorStop(1,'#d09270');ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
+  let glow=ctx.createRadialGradient(W*.78,H*.22,2,W*.78,H*.22,H*.5);glow.addColorStop(0,`rgba(226,196,151,${.09+moon*.18})`);glow.addColorStop(1,'rgba(226,196,151,0)');ctx.fillStyle=glow;ctx.fillRect(0,0,W,H);
+  for(const s of stars){let a=(.16+.7*(1-moon))* (.5+.5*Math.sin(time*.7+s.p));ctx.fillStyle=`rgba(230,235,216,${a})`;ctx.beginPath();ctx.arc(s.x*W,s.y*H,s.r,0,Math.PI*2);ctx.fill()}
+  const mx=W*.77,my=H*.22, mr=H*(.047+.012*moon);let mg=ctx.createRadialGradient(mx,my,mr*.15,mx,my,mr*3.1);mg.addColorStop(0,`rgba(255,226,181,${.15+moon*.17})`);mg.addColorStop(1,'rgba(255,226,181,0)');ctx.fillStyle=mg;ctx.beginPath();ctx.arc(mx,my,mr*3.1,0,Math.PI*2);ctx.fill();ctx.fillStyle=`rgba(248,226,188,${.35+moon*.62})`;ctx.beginPath();ctx.arc(mx,my,mr,0,Math.PI*2);ctx.fill();if(moon<.28){ctx.fillStyle='#19243a';ctx.beginPath();ctx.arc(mx+mr*.45,my-mr*.12,mr*.86,0,Math.PI*2);ctx.fill()}
+  // Far headlands
+  ctx.fillStyle='#273a48';ctx.beginPath();ctx.moveTo(0,horizon);ctx.quadraticCurveTo(W*.17,H*.38,W*.32,H*.49);ctx.quadraticCurveTo(W*.48,H*.57,W*.59,H*.48);ctx.quadraticCurveTo(W*.81,H*.37,W,horizon);ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.fill();
+  // distant water
+  let sea=ctx.createLinearGradient(0,horizon,0,H);sea.addColorStop(0,'#43535a');sea.addColorStop(.34,'#244751');sea.addColorStop(1,'#102a37');ctx.fillStyle=sea;ctx.fillRect(0,horizon,W,H-horizon);
+  // far moon path
+  for(let i=0;i<38;i++){let x=W*.77+Math.sin(i*1.7+time*.06)*W*(.018+wind*.06);let y=horizon+6+i*H*.008;let width=(1-i/44)*(4+moon*18);ctx.strokeStyle=`rgba(251,218,170,${(.10+moon*.16)*(1-i/44)})`;ctx.lineWidth=1+moon*2;ctx.beginPath();ctx.moveTo(x-width,y);ctx.lineTo(x+width,y+Math.sin(i+time)*1.2);ctx.stroke()}
+  // moving water plane to tide line
+  ctx.beginPath();ctx.moveTo(0,waterY);for(let x=0;x<=W;x+=8){let yy=waterY+Math.sin(x*.014+time*(.55+wind*2))*H*(.004+wind*.012)+Math.sin(x*.034-time*.42)*H*.002;ctx.lineTo(x,yy)}ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.closePath();let water=ctx.createLinearGradient(0,waterY,0,H);water.addColorStop(0,'#4d8581');water.addColorStop(.23,'#245b61');water.addColorStop(1,'#0a2934');ctx.fillStyle=water;ctx.fill();
+  // foam ribbons
+  for(let j=0;j<5;j++){ctx.beginPath();for(let x=0;x<=W;x+=10){let yy=waterY+H*(.018+j*.025)+Math.sin(x*.012+time*(.7+wind)+j*1.7)*H*(.005+wind*.012)+Math.sin(x*.027-time*.6+j)*H*.004;if(x===0)ctx.moveTo(x,yy);else ctx.lineTo(x,yy)}ctx.strokeStyle=`rgba(207,222,201,${.07+j*.017+wind*.04})`;ctx.lineWidth=1+j*.25;ctx.stroke()}
+  // sandy shelf and tide pools
+  const shelfTop=Math.max(waterY,H*.68);ctx.beginPath();ctx.moveTo(0,shelfTop);ctx.bezierCurveTo(W*.22,shelfTop-H*.045,W*.31,H*.77,W*.49,H*.79);ctx.bezierCurveTo(W*.7,H*.84,W*.78,H*.72,W,H*.75);ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.closePath();let sand=ctx.createLinearGradient(0,shelfTop,0,H);sand.addColorStop(0,'#7b7661');sand.addColorStop(.22,'#495b53');sand.addColorStop(1,'#1c3435');ctx.fillStyle=sand;ctx.fill();
+  // tide pool rings
+  for(let i=0;i<4;i++){let x=W*(.16+i*.21),y=H*(.81+(i%2)*.075),rx=W*(.052+i*.004),ry=H*.023;ctx.fillStyle=`rgba(26,83,83,${.36+tide*.15})`;ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='rgba(172,198,171,.16)';ctx.lineWidth=2;ctx.stroke()}
+  // rocks
+  for(const r of ridges){let x=r.x*W,y=Math.max(r.y*H,shelfTop+H*.035);ctx.fillStyle=r.tone>.5?'#273b3d':'#304547';ctx.beginPath();ctx.ellipse(x,y,r.rx*W,r.ry*H,0,Math.PI,Math.PI*2);ctx.quadraticCurveTo(x+r.rx*W*.5,y+r.ry*H*.48,x-r.rx*W,y);ctx.fill();ctx.strokeStyle='#69716a66';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x-r.rx*W*.45,y-r.ry*H*.35);ctx.quadraticCurveTo(x,y-r.ry*H*.95,x+r.rx*W*.22,y-r.ry*H*.36);ctx.stroke()}
+  // sea grass, swaying with wind
+  for(const g of grass){let x=g.x*W,y=H*(.96-g.green*.025),len=g.h*H*(.62+warm*.5);for(let blade=0;blade<3;blade++){let off=(blade-1)*4,lean=Math.sin(time*(.7+wind*2)+g.phase+blade)*len*(.13+wind*.22)+g.lean*len*.14;ctx.beginPath();ctx.moveTo(x+off,y);ctx.quadraticCurveTo(x+off+lean*.4,y-len*.55,x+off+lean,y-len);ctx.strokeStyle=`rgba(${g.green>.5?'113,157,128':'99,142,123'},${.38+warm*.15})`;ctx.lineWidth=1.2+g.green*1.3;ctx.stroke()}}
+  // glowing tiny creatures
+  let count=Math.round(critters.length*(.3+warm*.4+tide*.24));
+  for(let i=0;i<count;i++){let c=critters[i], x=((c.x+Math.sin(time*c.speed+c.phase)*(.008+wind*.025)+1)%1)*W, y=clamp(c.y+Math.sin(time*.45+c.phase)*.018-tide*.08,.58,.97)*H;let pulse=.45+.55*Math.sin(time*1.6+c.phase);let light=(.12+moon*.2+(.55-Math.abs(warm-.57))*.22)*pulse;let rad=c.r*(.8+warm*.55);let hue=c.kind===0?'129,231,196':c.kind===1?'147,204,235':c.kind===2?'235,207,145':'177,225,169';ctx.fillStyle=`rgba(${hue},${light*.22})`;ctx.beginPath();ctx.arc(x,y,rad*5,0,Math.PI*2);ctx.fill();ctx.fillStyle=`rgba(${hue},${light+.14})`;ctx.beginPath();ctx.arc(x,y,rad*(c.kind===1?1.25:1),0,Math.PI*2);ctx.fill();if(c.kind===1){ctx.beginPath();ctx.moveTo(x-rad,y);ctx.quadraticCurveTo(x,y+rad*3,x+rad,y);ctx.strokeStyle=`rgba(${hue},${light*.55})`;ctx.stroke()}}
+  // little beach flecks
+  for(let i=0;i<90;i++){let x=((i*137.5)%W),y=H*(.78+((i*71)%190)/1000);if(y>waterY+H*.045){ctx.fillStyle=`rgba(220,202,161,${.06+((i*13)%8)*.01})`;ctx.fillRect(x,y,1.4,1.4)}}
+ }
+ function animate(now){if(!last)last=now;let dt=Math.min(.05,(now-last)/1000);last=now;if(!paused)time+=dt;draw();if(!paused&&time-lastEvent>18){lastEvent=time;setEvent()}requestAnimationFrame(animate)}
+ const events=[['Een dunne golf laat licht achter in de poelen.','De kust licht even op waar het water zich terugtrekt.'],['Een klein wezen kiest de luwte achter een steen.','Tussen twee rotsen beweegt iets dat bijna op een vonk lijkt.'],['De wind strijkt over het water en maakt de maan langer.','Rimpels trekken het maanlicht uiteen in smalle strepen.'],['In een ondiepe poel blijft de nacht nog even hangen.','Een poel bewaart een stukje lucht nadat de vloed terugkeert.'],['De zee brengt iets mee en neemt iets anders weer mee.','Een schelp rolt een paar centimeter. Meer hoeft er niet te gebeuren.'],['De lichtjes worden stiller; verderop begint een nieuwe golf.','Onder het oppervlak schuift een trage schaduw voorbij.']];
+ function setEvent(){eventEl.classList.add('fade');setTimeout(()=>{let e=events[eventIndex++%events.length];eventEl.textContent=e[Math.floor(Math.random()*e.length)];let t=val('tide'),w=val('wind'),m=val('moon');hintEl.textContent=t>.72?'Het water staat hoog; de poelen raken elkaar bijna.':t<.3?'Bij eb blijven kleine werelden achter tussen het wier.':w>.68?'Veel wind. De kust wordt beweeglijker.':m<.25?'Weinig maanlicht. De kleinste lichtjes vallen nu op.':'Verander iets kleins. De kust antwoordt op haar eigen tempo.';eventEl.classList.remove('fade');clockEl.textContent='moment '+String(eventIndex+1).padStart(2,'0')},450)}
+ Object.entries(controls).forEach(([k,el])=>el.addEventListener('input',()=>{outputs[k].value=el.value+'%';if(k==='tide'||k==='wind')hintEl.textContent=k==='tide'?(val(k)>.68?'Het water komt dichter bij de poelen.':'Het water trekt zich langzaam terug.'):(val(k)>.65?'De wind roert het hele oppervlak.':'De lucht is bijna stil.')}));
+ pauseBtn.addEventListener('click',()=>{paused=!paused;pauseBtn.textContent=paused?'Verder kijken':'Pauzeer';stateEl.textContent=paused?'het moment rust':'de kust ademt'});
+ window.addEventListener('resize',resize,{passive:true});resize();requestAnimationFrame(animate);
+})();
+</script>
+</body>
+</html>
