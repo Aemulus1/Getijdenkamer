@@ -41,6 +41,7 @@ main{max-width:1240px;margin:0 auto}.top{display:flex;justify-content:space-betw
  const grass=Array.from({length:76},(_,i)=>({x:i/75*1.08-.04,h:rand(.035,.12),phase:rand(0,6.28),lean:rand(-.5,.5),green:rand(0,1)}));
  const critters=Array.from({length:46},(_,i)=>({x:rand(.025,.98),y:rand(.59,.94),r:rand(1.5,5),phase:rand(0,6.28),speed:rand(.15,.55),kind:i%4}));
  const ridges=Array.from({length:8},(_,i)=>({x:.06+i*.128,y:rand(.79,.97),rx:rand(.07,.15),ry:rand(.025,.09),tone:rand(0,1)}));
+ const cloudGroups=Array.from({length:6},(_,i)=>({x:i*.22+rand(-.06,.06),y:rand(.12,.37),w:rand(.14,.21),h:rand(.035,.06),phase:rand(0,6.28),puffs:Array.from({length:8},(_,j)=>({x:(j/7-.5)+rand(-.08,.08),y:rand(-.35,.28),rx:rand(.18,.31),ry:rand(.48,.85)}))}));
  function resize(){let box=canvas.getBoundingClientRect();dpr=Math.min(2,window.devicePixelRatio||1);canvas.width=Math.round(box.width*dpr);canvas.height=Math.round(box.height*dpr);W=box.width;H=box.height;ctx.setTransform(dpr,0,0,dpr,0,0)}
  function val(k){return +controls[k].value/100}
  function drawFish(x,y,size,angle=0){
@@ -54,7 +55,7 @@ main{max-width:1240px;margin:0 auto}.top{display:flex;justify-content:space-betw
   ctx.fillStyle='#030506';ctx.beginPath();ctx.arc(.44*size,-.08*size,size*.032,0,Math.PI*2);ctx.fill();ctx.restore()
  }
  function drawFishingBoat(dayAge){
-  if(time<180||dayAge<8||dayAge>=84){if(lastBoatStage!==-1){hintEl.textContent='Verander iets kleins. De kust antwoordt op haar eigen tempo.';lastBoatStage=-1}return}
+  if(dayAge<8||dayAge>=84){if(lastBoatStage!==-1){hintEl.textContent='Verander iets kleins. De kust antwoordt op haar eigen tempo.';lastBoatStage=-1}return}
   const B=Math.max(54,W*.115),ease=t=>t*t*(3-2*t);let x,stage;
   if(dayAge<31){stage=0;x=-B*.6+(W*.48+B*.6)*ease((dayAge-8)/23)}
   else if(dayAge<48){stage=1;x=W*.48+Math.sin(time*1.3)*W*.002}
@@ -103,6 +104,39 @@ main{max-width:1240px;margin:0 auto}.top{display:flex;justify-content:space-betw
   if(rowing){ctx.strokeStyle='rgba(235,241,231,.66)';ctx.lineWidth=.009;ctx.beginPath();ctx.moveTo(-.58,.19);ctx.quadraticCurveTo(-.74,.22,-.90,.18);ctx.moveTo(-.55,.23);ctx.quadraticCurveTo(-.70,.27,-.84,.24);ctx.stroke()}
   ctx.restore();
  }
+ function drawDistantShip(cycle){
+  if(cycle<.5)return;
+  const p=(cycle-.5)*2,S=Math.max(130,W*.24),x=-S+(W+2*S)*p,y=H*.565,light=.2+.8*Math.sin(Math.PI*p);
+  ctx.save();ctx.translate(x,y);ctx.scale(S,S);ctx.globalAlpha=.65+.35*light;
+  // broad, distant silhouette with a high bridge and deck lights
+  ctx.fillStyle='#02070b';ctx.beginPath();ctx.moveTo(-.52,.035);ctx.lineTo(.48,.035);ctx.quadraticCurveTo(.43,.18,.27,.20);ctx.lineTo(-.34,.20);ctx.quadraticCurveTo(-.49,.17,-.52,.035);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.moveTo(-.22,.03);ctx.lineTo(-.18,-.13);ctx.lineTo(.08,-.13);ctx.lineTo(.14,.035);ctx.closePath();ctx.fill();
+  ctx.fillRect(-.07,-.23,.09,.10);ctx.fillRect(.18,-.08,.055,.12);
+  ctx.strokeStyle='#02070b';ctx.lineWidth=.012;ctx.beginPath();ctx.moveTo(-.02,-.23);ctx.lineTo(-.02,-.36);ctx.moveTo(-.12,-.30);ctx.lineTo(.12,-.30);ctx.stroke();
+  // Warm portholes and navigation lights
+  ctx.shadowColor='#ffd27a';ctx.shadowBlur=.035;ctx.fillStyle='#ffe19a';
+  for(const w of [[-.14,-.10,.035,.035],[-.06,-.10,.035,.035],[.02,-.10,.035,.035],[.085,-.07,.025,.03],[.22,-.035,.022,.022]])ctx.fillRect(w[0],w[1],w[2],w[3]);
+  ctx.shadowColor='#fff3c5';ctx.beginPath();ctx.arc(-.02,-.36,.018,0,Math.PI*2);ctx.fill();
+  ctx.shadowBlur=0;ctx.fillStyle='#db6454';ctx.beginPath();ctx.arc(-.48,.025,.018,0,Math.PI*2);ctx.fill();ctx.fillStyle='#79d1ae';ctx.beginPath();ctx.arc(.46,.025,.018,0,Math.PI*2);ctx.fill();
+  // Broken reflections beneath the hull
+  ctx.strokeStyle=`rgba(255,204,126,${.14*light})`;ctx.lineWidth=.009;
+  for(let i=0;i<5;i++){let yy=.24+i*.045,xx=-.10+(i%3)*.10;ctx.beginPath();ctx.moveTo(xx,yy);ctx.lineTo(xx+.12+(i%2)*.05,yy);ctx.stroke()}
+  ctx.restore();
+ }
+ function drawClouds(wind,daylight){
+  const strength=clamp((wind-.48)/.52,0,1);if(strength<=.01)return;
+  const count=Math.min(cloudGroups.length,Math.ceil(1+strength*5));
+  const rgb=daylight>.35?'244,242,233':'139,157,166',opacity=.12+strength*(.10+daylight*.08);
+  for(let i=0;i<count;i++){
+   const c=cloudGroups[i],x=((c.x+time*(.006+wind*.022))%1.24-.12)*W,y=c.y*H+Math.sin(time*.18+c.phase)*H*.004,w=c.w*W,h=c.h*H;
+   for(const puff of c.puffs){
+    const px=x+puff.x*w,py=y+puff.y*h,rx=puff.rx*w*.42,ry=puff.ry*h;
+    const g=ctx.createRadialGradient(px,py,0,px,py,Math.max(rx,ry));
+    g.addColorStop(0,`rgba(${rgb},${opacity})`);g.addColorStop(.58,`rgba(${rgb},${opacity*.68})`);g.addColorStop(1,`rgba(${rgb},0)`);
+    ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(px,py,rx,ry,0,0,Math.PI*2);ctx.fill();
+   }
+  }
+ }
  function draw(){
   let tide=val('tide'),moon=val('moon'),warm=val('warmth'),wind=val('wind');
   const waterY=H*(.64-tide*.15), horizon=H*.54;
@@ -111,6 +145,7 @@ main{max-width:1240px;margin:0 auto}.top{display:flex;justify-content:space-betw
   const bodyX=(celestial*1.32-.16)*W, bodyY=horizon-Math.sin(celestial*Math.PI)*H*.39;
   const sunsetProgress=sunUp?clamp((celestial-.55)/.45,0,1):0, sunsetFactor=Math.pow(sunsetProgress,1.15), sunColor=mixHex('#ffe099','#e54432',sunsetFactor);
   let sky=ctx.createLinearGradient(0,0,0,H);sky.addColorStop(0,mixHex('#07101e','#93b9c2',daylight));sky.addColorStop(.55,mixHex('#122435','#b6c8be',daylight));sky.addColorStop(1,mixHex('#26333a','#f0c18d',daylight));ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
+  drawClouds(wind,daylight);
   let halo=ctx.createRadialGradient(bodyX,bodyY,2,bodyX,bodyY,H*.24);halo.addColorStop(0,sunUp?`rgba(255,${Math.round(190-88*sunsetFactor)},${Math.round(116-66*sunsetFactor)},${.12+daylight*.16+sunsetFactor*.22})`:`rgba(226,196,151,${.08+moon*.16})`);halo.addColorStop(1,'rgba(226,196,151,0)');ctx.fillStyle=halo;ctx.fillRect(0,0,W,H);
   for(const s of stars){let a=(.16+.7*(1-moon))*Math.pow(moonlit,1.7)*(.5+.5*Math.sin(time*.7+s.p));ctx.fillStyle=`rgba(230,235,216,${a})`;ctx.beginPath();ctx.arc(s.x*W,s.y*H,s.r,0,Math.PI*2);ctx.fill()}
   const orb=H*(sunUp?.052:.047+.012*moon),orbGlow=ctx.createRadialGradient(bodyX,bodyY,orb*.12,bodyX,bodyY,orb*3.3);orbGlow.addColorStop(0,sunUp?`rgba(255,203,129,${.24+.22*daylight})`:`rgba(255,226,181,${.12+moon*.2})`);orbGlow.addColorStop(1,'rgba(255,226,181,0)');ctx.fillStyle=orbGlow;ctx.beginPath();ctx.arc(bodyX,bodyY,orb*3.3,0,Math.PI*2);ctx.fill();ctx.fillStyle=sunUp?sunColor:`rgba(248,226,188,${.28+moon*.68})`;ctx.beginPath();ctx.arc(bodyX,bodyY,orb,0,Math.PI*2);ctx.fill();if(!sunUp){ctx.save();ctx.globalAlpha=.30;ctx.fillStyle='#6d675e';for(const c of [[-.34,.12,.14],[.24,-.34,.11],[.33,.2,.08],[-.08,-.48,.06]]){ctx.beginPath();ctx.arc(bodyX+c[0]*orb,bodyY+c[1]*orb,orb*c[2],0,Math.PI*2);ctx.fill()}ctx.restore()}if(!sunUp&&moon<.28){ctx.fillStyle=mixHex('#07101e','#93b9c2',daylight);ctx.beginPath();ctx.arc(bodyX+orb*.45,bodyY-orb*.12,orb*.86,0,Math.PI*2);ctx.fill()}
@@ -118,14 +153,15 @@ main{max-width:1240px;margin:0 auto}.top{display:flex;justify-content:space-betw
   // Far headlands
   ctx.fillStyle=mixHex('#192734','#61756d',daylight);ctx.beginPath();ctx.moveTo(0,horizon);ctx.quadraticCurveTo(W*.17,H*.38,W*.32,H*.49);ctx.quadraticCurveTo(W*.48,H*.57,W*.59,H*.48);ctx.quadraticCurveTo(W*.81,H*.37,W,horizon);ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.fill();
   // distant water
-  let sea=ctx.createLinearGradient(0,horizon,0,H);sea.addColorStop(0,mixHex('#26353d','#9bb6ad',daylight));sea.addColorStop(.34,mixHex('#172a33','#527b7a',daylight));sea.addColorStop(1,mixHex('#091721','#284c4b',daylight));ctx.fillStyle=sea;ctx.fillRect(0,horizon,W,H-horizon);
+  let sea=ctx.createLinearGradient(0,horizon,0,H);sea.addColorStop(0,mixHex('#101d26','#9bb6ad',daylight));sea.addColorStop(.34,mixHex('#09131a','#527b7a',daylight));sea.addColorStop(1,mixHex('#030a10','#284c4b',daylight));ctx.fillStyle=sea;ctx.fillRect(0,horizon,W,H-horizon);
   // far moon path
   for(let i=0;i<38;i++){let x=bodyX+Math.sin(i*1.7+time*.06)*W*(.018+wind*.06);let y=horizon+6+i*H*.008;let width=(1-i/44)*(4+(sunUp?daylight:moon)*18);ctx.strokeStyle=sunUp?`rgba(255,211,145,${(.08+daylight*.2)*(1-i/44)})`:`rgba(251,218,170,${(.08+moon*.16)*(1-i/44)})`;ctx.lineWidth=1+moon*2;ctx.beginPath();ctx.moveTo(x-width,y);ctx.lineTo(x+width,y+Math.sin(i+time)*1.2);ctx.stroke()}
   // moving water plane to tide line
-  ctx.beginPath();ctx.moveTo(0,waterY);for(let x=0;x<=W;x+=8){let yy=waterY+Math.sin(x*.014+time*(.55+wind*2))*H*(.004+wind*.012)+Math.sin(x*.034-time*.42)*H*.002;ctx.lineTo(x,yy)}ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.closePath();let water=ctx.createLinearGradient(0,waterY,0,H);water.addColorStop(0,mixHex('#305a57','#81a59a',daylight));water.addColorStop(.23,mixHex('#173d42','#3f7470',daylight));water.addColorStop(1,mixHex('#071c27','#173b3c',daylight));ctx.fillStyle=water;ctx.fill();
+  ctx.beginPath();ctx.moveTo(0,waterY);for(let x=0;x<=W;x+=8){let yy=waterY+Math.sin(x*.014+time*(.55+wind*2))*H*(.004+wind*.012)+Math.sin(x*.034-time*.42)*H*.002;ctx.lineTo(x,yy)}ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.closePath();let water=ctx.createLinearGradient(0,waterY,0,H);water.addColorStop(0,mixHex('#0b1c20','#81a59a',daylight));water.addColorStop(.23,mixHex('#061219','#3f7470',daylight));water.addColorStop(1,mixHex('#02070d','#173b3c',daylight));ctx.fillStyle=water;ctx.fill();
+  drawDistantShip(cycle);
   drawFishingBoat(time%180);
   // foam ribbons
-  for(let j=0;j<5;j++){ctx.beginPath();for(let x=0;x<=W;x+=10){let yy=waterY+H*(.018+j*.025)+Math.sin(x*.012+time*(.7+wind)+j*1.7)*H*(.005+wind*.012)+Math.sin(x*.027-time*.6+j)*H*.004;if(x===0)ctx.moveTo(x,yy);else ctx.lineTo(x,yy)}ctx.strokeStyle=`rgba(207,222,201,${.07+j*.017+wind*.04})`;ctx.lineWidth=1+j*.25;ctx.stroke()}
+  for(let j=0;j<5;j++){ctx.beginPath();for(let x=0;x<=W;x+=10){let yy=waterY+H*(.018+j*.025)+Math.sin(x*.012+time*(.7+wind)+j*1.7)*H*(.005+wind*.012)+Math.sin(x*.027-time*.6+j)*H*.004;if(x===0)ctx.moveTo(x,yy);else ctx.lineTo(x,yy)}ctx.strokeStyle=`rgba(207,222,201,${(.018+j*.008+wind*.025)*(.12+daylight*.88)})`;ctx.lineWidth=1+j*.25;ctx.stroke()}
   // sandy shelf and tide pools
   const shelfTop=Math.max(waterY,H*.68);ctx.beginPath();ctx.moveTo(0,shelfTop);ctx.bezierCurveTo(W*.22,shelfTop-H*.045,W*.31,H*.77,W*.49,H*.79);ctx.bezierCurveTo(W*.7,H*.84,W*.78,H*.72,W,H*.75);ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.closePath();let sand=ctx.createLinearGradient(0,shelfTop,0,H);sand.addColorStop(0,mixHex('#49463d','#b39c73',daylight));sand.addColorStop(.22,mixHex('#2e3f3a','#718271',daylight));sand.addColorStop(1,mixHex('#101e21','#314a42',daylight));ctx.fillStyle=sand;ctx.fill();
   // tide pool rings
