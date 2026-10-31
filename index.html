@@ -86,21 +86,24 @@ main{max-width:1240px;margin:0 auto}.top{display:flex;justify-content:space-betw
  }
  function drawDistantShip(cycle){
   if(cycle<.5)return;
-  const p=(cycle-.5)*2,S=Math.max(130,W*.24),x=-S+(W+2*S)*p,y=H*.565,light=.2+.8*Math.sin(Math.PI*p);
+  const p=(cycle-.5)*2,S=Math.max(120,W*.17),x=-S+(W+2*S)*p,y=H*.565,light=.2+.8*Math.sin(Math.PI*p);
   ctx.save();ctx.translate(x,y);ctx.scale(S,S);ctx.globalAlpha=.65+.35*light;
-  // broad, distant silhouette with a high bridge and deck lights
-  ctx.fillStyle='#02070b';ctx.beginPath();ctx.moveTo(-.52,.035);ctx.lineTo(.48,.035);ctx.quadraticCurveTo(.43,.18,.27,.20);ctx.lineTo(-.34,.20);ctx.quadraticCurveTo(-.49,.17,-.52,.035);ctx.closePath();ctx.fill();
-  ctx.beginPath();ctx.moveTo(-.22,.03);ctx.lineTo(-.18,-.13);ctx.lineTo(.08,-.13);ctx.lineTo(.14,.035);ctx.closePath();ctx.fill();
-  ctx.fillRect(-.07,-.23,.09,.10);ctx.fillRect(.18,-.08,.055,.12);
-  ctx.strokeStyle='#02070b';ctx.lineWidth=.012;ctx.beginPath();ctx.moveTo(-.02,-.23);ctx.lineTo(-.02,-.36);ctx.moveTo(-.12,-.30);ctx.lineTo(.12,-.30);ctx.stroke();
-  // Warm portholes and navigation lights
-  ctx.shadowColor='#ffd27a';ctx.shadowBlur=.035;ctx.fillStyle='#ffe19a';
-  for(const w of [[-.14,-.10,.035,.035],[-.06,-.10,.035,.035],[.02,-.10,.035,.035],[.085,-.07,.025,.03],[.22,-.035,.022,.022]])ctx.fillRect(w[0],w[1],w[2],w[3]);
-  ctx.shadowColor='#fff3c5';ctx.beginPath();ctx.arc(-.02,-.36,.018,0,Math.PI*2);ctx.fill();
-  ctx.shadowBlur=0;ctx.fillStyle='#db6454';ctx.beginPath();ctx.arc(-.48,.025,.018,0,Math.PI*2);ctx.fill();ctx.fillStyle='#79d1ae';ctx.beginPath();ctx.arc(.46,.025,.018,0,Math.PI*2);ctx.fill();
-  // Broken reflections beneath the hull
-  ctx.strokeStyle=`rgba(255,204,126,${.14*light})`;ctx.lineWidth=.009;
-  for(let i=0;i<5;i++){let yy=.24+i*.045,xx=-.10+(i%3)*.10;ctx.beginPath();ctx.moveTo(xx,yy);ctx.lineTo(xx+.12+(i%2)*.05,yy);ctx.stroke()}
+  // A small, smoothly curved working boat, seen far across the water.
+  ctx.fillStyle='#02070b';ctx.beginPath();ctx.moveTo(-.50,.015);ctx.quadraticCurveTo(-.17,.045,.36,.005);ctx.quadraticCurveTo(.46,-.005,.50,-.045);ctx.quadraticCurveTo(.45,.12,.34,.19);ctx.quadraticCurveTo(.12,.27,-.22,.235);ctx.quadraticCurveTo(-.43,.20,-.50,.015);ctx.closePath();ctx.fill();
+  // Rounded wheelhouse and low deck cabin.
+  ctx.beginPath();ctx.moveTo(-.22,.012);ctx.lineTo(-.195,-.105);ctx.quadraticCurveTo(-.185,-.13,-.15,-.13);ctx.lineTo(.045,-.13);ctx.quadraticCurveTo(.09,-.13,.11,-.095);ctx.lineTo(.16,.012);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.moveTo(-.13,-.13);ctx.lineTo(-.105,-.195);ctx.quadraticCurveTo(-.095,-.215,-.07,-.215);ctx.lineTo(.005,-.215);ctx.quadraticCurveTo(.035,-.21,.04,-.18);ctx.lineTo(.047,-.13);ctx.closePath();ctx.fill();
+  // Mast and fine deck rails.
+  ctx.strokeStyle='#02070b';ctx.lineWidth=.012;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-.03,-.21);ctx.quadraticCurveTo(-.035,-.285,-.025,-.34);ctx.moveTo(-.025,-.29);ctx.lineTo(.075,-.29);ctx.moveTo(-.46,.018);ctx.quadraticCurveTo(-.2,-.005,.12,.018);ctx.stroke();
+  // Small warm cabin windows and portholes.
+  ctx.shadowColor='#ffd27a';ctx.shadowBlur=.028;ctx.fillStyle='#ffe19a';
+  for(const [wx,wy,r] of [[-.145,-.088,.016],[-.075,-.088,.016],[-.005,-.088,.016],[.065,-.07,.013],[-.32,.09,.012],[.25,.105,.012]]){ctx.beginPath();ctx.arc(wx,wy,r,0,Math.PI*2);ctx.fill()}
+  ctx.beginPath();ctx.arc(-.025,-.34,.013,0,Math.PI*2);ctx.fill();
+  ctx.shadowColor='#fff3c5';ctx.fillStyle='#fff0bd';ctx.beginPath();ctx.arc(-.47,.025,.012,0,Math.PI*2);ctx.fill();ctx.fillStyle='#75d8bd';ctx.beginPath();ctx.arc(.45,-.02,.012,0,Math.PI*2);ctx.fill();
+  ctx.shadowBlur=0;
+  // Broken reflections follow the boat without turning into a hard stripe.
+  ctx.strokeStyle=`rgba(255,204,126,${.16*light})`;ctx.lineWidth=.008;
+  for(let i=0;i<5;i++){let yy=.27+i*.035,xx=-.11+(i%3)*.09;ctx.beginPath();ctx.moveTo(xx,yy);ctx.quadraticCurveTo(xx+.05,yy+.008,xx+.13+(i%2)*.035,yy);ctx.stroke()}
   ctx.restore();
  }
  function cycleRandom(cycleNo,salt){const x=Math.sin(cycleNo*127.1+salt*311.7)*43758.5453;return x-Math.floor(x)}
