@@ -43,7 +43,16 @@ main{max-width:1240px;margin:0 auto}.top{display:flex;justify-content:space-betw
  const ridges=Array.from({length:8},(_,i)=>({x:.06+i*.128,y:rand(.79,.97),rx:rand(.07,.15),ry:rand(.025,.09),tone:rand(0,1)}));
  function resize(){let box=canvas.getBoundingClientRect();dpr=Math.min(2,window.devicePixelRatio||1);canvas.width=Math.round(box.width*dpr);canvas.height=Math.round(box.height*dpr);W=box.width;H=box.height;ctx.setTransform(dpr,0,0,dpr,0,0)}
  function val(k){return +controls[k].value/100}
- function drawFish(x,y,size,angle=0){ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.fillStyle='#e8bd75';ctx.beginPath();ctx.ellipse(0,0,size*.72,size*.34,0,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.moveTo(-size*.55,0);ctx.lineTo(-size,-size*.42);ctx.lineTo(-size,size*.42);ctx.closePath();ctx.fill();ctx.fillStyle='#17292e';ctx.beginPath();ctx.arc(size*.42,-size*.06,size*.055,0,Math.PI*2);ctx.fill();ctx.restore()}
+ function drawFish(x,y,size,angle=0){
+  ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.fillStyle='#030506';
+  ctx.beginPath();ctx.ellipse(0,0,size*.72,size*.34,0,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.moveTo(-size*.52,0);ctx.lineTo(-size,-size*.40);ctx.lineTo(-size,size*.40);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.moveTo(-.05*size,-.28*size);ctx.lineTo(.12*size,-.55*size);ctx.lineTo(.27*size,-.23*size);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.moveTo(-.12*size,.20*size);ctx.lineTo(.08*size,.48*size);ctx.lineTo(.22*size,.15*size);ctx.closePath();ctx.fill();
+  ctx.strokeStyle='#edf1e8';ctx.lineWidth=size*.045;ctx.beginPath();ctx.arc(.18*size,-.02*size,.20*size,-.8,.8);ctx.stroke();
+  ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(.42*size,-.08*size,size*.075,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#030506';ctx.beginPath();ctx.arc(.44*size,-.08*size,size*.032,0,Math.PI*2);ctx.fill();ctx.restore()
+ }
  function drawFishingBoat(dayAge){
   if(time<180||dayAge<8||dayAge>=84){if(lastBoatStage!==-1){hintEl.textContent='Verander iets kleins. De kust antwoordt op haar eigen tempo.';lastBoatStage=-1}return}
   const B=Math.max(54,W*.115),ease=t=>t*t*(3-2*t);let x,stage;
@@ -54,28 +63,44 @@ main{max-width:1240px;margin:0 auto}.top{display:flex;justify-content:space-betw
   else{stage=4;x=W*.48+(W+B*1.2)*ease((dayAge-57)/27)}
   const messages=['Een visser roeit de baai in.','Hij laat zijn lijn zakken en wacht.','Er trekt iets aan de dobber!','Een vis! De visser haalt zijn vangst binnen.','Met zijn vangst aan boord roeit hij weg.'];
   if(stage!==lastBoatStage){hintEl.textContent=messages[stage];lastBoatStage=stage}
-  const y=H*.62+Math.sin(time*1.7)*H*.003,rowing=stage===0||stage===4,bite=stage===2,holding=stage===3||stage===4,stroke=Math.sin(time*7)*.17;
+  const y=H*.62+Math.sin(time*1.7)*H*.003,rowing=stage===0||stage===4,stroke=Math.sin(time*7)*.17;
   ctx.save();ctx.translate(x,y);ctx.scale(B,B);
-  // Water shadow and little fishing boat
-  ctx.fillStyle='rgba(7,31,37,.25)';ctx.beginPath();ctx.ellipse(0,.205,.59,.075,0,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#624d3c';ctx.beginPath();ctx.moveTo(-.53,.015);ctx.quadraticCurveTo(-.43,.20,-.20,.22);ctx.lineTo(.35,.22);ctx.quadraticCurveTo(.52,.19,.56,.015);ctx.quadraticCurveTo(.08,.085,-.53,.015);ctx.closePath();ctx.fill();
-  ctx.strokeStyle='#d1ab70';ctx.lineWidth=.018;ctx.beginPath();ctx.moveTo(-.47,.055);ctx.quadraticCurveTo(.02,.12,.50,.05);ctx.stroke();
-  ctx.fillStyle='#9a7651';ctx.fillRect(-.22,-.015,.35,.045);ctx.fillStyle='#d6c08e';ctx.fillRect(-.12,-.055,.16,.04);
-  // Seated fisher, with a bright cap and visible face
-  ctx.strokeStyle='#354d4e';ctx.lineWidth=.055;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-.09,-.04);ctx.lineTo(-.12,-.16);ctx.lineTo(-.025,-.19);ctx.stroke();
-  ctx.strokeStyle='#bd8158';ctx.lineWidth=.035;ctx.beginPath();ctx.moveTo(-.12,-.15);ctx.lineTo(-.005,-.10);ctx.stroke();
-  ctx.fillStyle='#d4a477';ctx.beginPath();ctx.arc(-.105,-.235,.065,0,Math.PI*2);ctx.fill();ctx.fillStyle='#d88955';ctx.beginPath();ctx.arc(-.105,-.26,.069,Math.PI,Math.PI*2);ctx.fill();ctx.fillRect(-.17,-.26,.13,.018);
-  // Oars move while rowing; while fishing he holds the rod steady
-  if(rowing){ctx.save();ctx.translate(.16,.025);ctx.rotate(stroke*.55);ctx.strokeStyle='#d0b17a';ctx.lineWidth=.018;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(.23,.12);ctx.stroke();ctx.fillStyle='#b89462';ctx.beginPath();ctx.ellipse(.25,.13,.075,.025,0,0,Math.PI*2);ctx.fill();ctx.restore();ctx.strokeStyle='#bd8158';ctx.lineWidth=.028;ctx.beginPath();ctx.moveTo(-.11,-.15);ctx.lineTo(.02,-.06+stroke*.16);ctx.stroke()}
-  else{
-   const rodX=.46,rodY=-.32,bobX=.54,bobY=.05+(bite?-.018*Math.sin(time*13):.012*Math.sin(time*3));
-   ctx.strokeStyle='#d8c393';ctx.lineWidth=.012;ctx.beginPath();ctx.moveTo(-.05,-.14);ctx.quadraticCurveTo(.17,-.27,rodX,rodY);ctx.stroke();
-   if(!holding){ctx.strokeStyle='#d6ded3';ctx.lineWidth=.006;ctx.beginPath();ctx.moveTo(rodX,rodY);ctx.lineTo(bobX,bobY);ctx.stroke();ctx.fillStyle='#e58d64';ctx.beginPath();ctx.arc(bobX,bobY,.025,0,Math.PI*2);ctx.fill();}
-   if(bite){let t=clamp((dayAge-48)/4,0,1),pull=t*t*(3-2*t),fx=bobX+(.10-bobX)*pull,fy=bobY+(-.24-bobY)*pull;drawFish(fx,fy,.10,-.14*pull)}
-   if(holding){drawFish(.05,-.25,.105,-.14);ctx.strokeStyle='#bd8158';ctx.lineWidth=.03;ctx.beginPath();ctx.moveTo(-.11,-.15);ctx.lineTo(.02,-.23);ctx.stroke()}
+  // Boat silhouette and a pale edge to separate it from the water
+  ctx.fillStyle='rgba(7,31,37,.25)';ctx.beginPath();ctx.ellipse(0,.205,.62,.075,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#030506';ctx.beginPath();ctx.moveTo(-.58,.005);ctx.quadraticCurveTo(-.51,.19,-.25,.22);ctx.lineTo(.35,.22);ctx.quadraticCurveTo(.54,.19,.59,.005);ctx.quadraticCurveTo(.05,.075,-.58,.005);ctx.closePath();ctx.fill();
+  ctx.strokeStyle='rgba(245,243,232,.88)';ctx.lineWidth=.012;ctx.beginPath();ctx.moveTo(-.51,.035);ctx.quadraticCurveTo(.02,.105,.53,.035);ctx.stroke();
+  // Seat
+  ctx.fillStyle='#030506';ctx.fillRect(-.24,-.015,.28,.045);
+  // Fisherman: seated to row, standing to cast and reel in
+  ctx.fillStyle='#030506';ctx.strokeStyle='#030506';ctx.lineCap='round';ctx.lineJoin='round';
+  if(rowing){
+   // bent legs and compact seated body
+   ctx.lineWidth=.075;ctx.beginPath();ctx.moveTo(-.09,-.04);ctx.lineTo(-.16,.025);ctx.lineTo(.02,.035);ctx.moveTo(-.08,-.03);ctx.lineTo(-.03,.035);ctx.stroke();
+   ctx.beginPath();ctx.moveTo(-.14,-.20);ctx.lineTo(-.19,-.08);ctx.lineTo(-.06,-.035);ctx.lineTo(.02,-.12);ctx.lineTo(-.02,-.21);ctx.closePath();ctx.fill();
+   ctx.beginPath();ctx.arc(-.105,-.27,.065,0,Math.PI*2);ctx.fill();ctx.fillRect(-.17,-.29,.15,.022);ctx.fillRect(-.15,-.33,.09,.025);
+   // One visible oar on the near side of the boat
+   ctx.save();ctx.translate(.08,.035);ctx.rotate(stroke*.55);ctx.strokeStyle='#030506';ctx.lineWidth=.022;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(.30,.13);ctx.stroke();ctx.fillStyle='#030506';ctx.beginPath();ctx.ellipse(.32,.14,.085,.026,0,0,Math.PI*2);ctx.fill();ctx.restore();
+   ctx.lineWidth=.035;ctx.beginPath();ctx.moveTo(-.12,-.17);ctx.lineTo(.10,-.08+stroke*.12);ctx.stroke();
+  }else{
+   const bite=stage===2,holding=stage===3,leave=stage===4,lean=bite?.07:0;
+   // standing silhouette, leaning back slightly when the fish bites
+   ctx.lineWidth=.085;ctx.beginPath();ctx.moveTo(-.10,-.065);ctx.lineTo(-.17,.045);ctx.lineTo(-.06,.13);ctx.moveTo(-.075,-.06);ctx.lineTo(.075,.055);ctx.lineTo(.02,.13);ctx.stroke();
+   ctx.beginPath();ctx.moveTo(-.14,-.23);ctx.lineTo(-.19-lean,-.10);ctx.lineTo(-.12,-.045);ctx.lineTo(.005,-.10);ctx.lineTo(-.04,-.235);ctx.closePath();ctx.fill();
+   ctx.beginPath();ctx.arc(-.11,-.30,.061,0,Math.PI*2);ctx.fill();ctx.fillRect(-.17,-.32,.14,.02);ctx.fillRect(-.15,-.36,.085,.025);
+   if(leave){drawFish(.20,.055,.115,.04);ctx.lineWidth=.04;ctx.beginPath();ctx.moveTo(-.08,-.17);ctx.lineTo(.19,.035);ctx.stroke()}
+   else if(holding){drawFish(.17,-.20,.13,-.12);ctx.lineWidth=.04;ctx.beginPath();ctx.moveTo(-.08,-.17);ctx.lineTo(.13,-.22);ctx.stroke()}
+   else{
+    const rodX=.66,rodY=-.83,bobX=.73,bobY=.055+(bite?-.018*Math.sin(time*13):.012*Math.sin(time*3));
+    ctx.lineWidth=.014;ctx.beginPath();ctx.moveTo(-.07,-.19);ctx.bezierCurveTo(.12,-.43,.16,-.98,.49,-1.02);ctx.bezierCurveTo(.78,-1.06,1.00,-.88,rodX,rodY);ctx.stroke();
+    const pull=bite?clamp((dayAge-48)/4,0,1):0;
+    const fishX=bobX-.20*pull*pull,fishY=bobY-.31*pull*pull;
+    ctx.strokeStyle='#030506';ctx.lineWidth=.009;ctx.beginPath();ctx.moveTo(rodX,rodY);ctx.lineTo(bobX,bobY);ctx.stroke();
+    ctx.fillStyle='#030506';ctx.beginPath();ctx.arc(bobX,bobY,.025,0,Math.PI*2);ctx.fill();
+    if(bite){drawFish(fishX,fishY,.16,-.45*pull);ctx.strokeStyle='rgba(245,243,232,.8)';ctx.lineWidth=.009;for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(bobX-.09+i*.055,.12);ctx.lineTo(bobX-.13+i*.08,.17);ctx.stroke()}}
+   }
   }
-  // A small wake keeps the boat visibly moving across the bay
-  if(rowing){ctx.strokeStyle='rgba(220,235,218,.55)';ctx.lineWidth=.008;ctx.beginPath();ctx.moveTo(-.55,.19);ctx.quadraticCurveTo(-.72,.22,-.88,.18);ctx.moveTo(-.50,.22);ctx.quadraticCurveTo(-.69,.27,-.82,.24);ctx.stroke()}
+  // Small wake trails behind the boat as it crosses the bay
+  if(rowing){ctx.strokeStyle='rgba(235,241,231,.66)';ctx.lineWidth=.009;ctx.beginPath();ctx.moveTo(-.58,.19);ctx.quadraticCurveTo(-.74,.22,-.90,.18);ctx.moveTo(-.55,.23);ctx.quadraticCurveTo(-.70,.27,-.84,.24);ctx.stroke()}
   ctx.restore();
  }
  function draw(){
